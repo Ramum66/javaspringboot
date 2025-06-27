@@ -1,0 +1,36 @@
+trigger:
+- none
+pool:
+  name: java-cicd
+  vmImage: workstation
+
+variables:
+ - group: "java-vars"
+ 
+steps:
+
+- task: Bash@3
+  displayName: "build artifacts"
+  inputs:
+    targetType: 'inline'
+    script: |
+      mvn clean package
+    failOnStderr: true
+
+- task: Bash@3
+  displayName: "sonar scanner"
+  env:
+    SONAR_TOKEN: $(SONAR_TOKEN)
+  inputs:
+    targetType: 'inline'
+    script: |
+      #!/bin/bash
+      	echo "Executing sonar cli"
+      	sonar-scanner \
+      	-Dsonar.projectKey="dvsbatch22024_javaSpringBoot"  \
+      	-Dsonar.sources="./target/"   \
+      	-Dsonar.host.url="https://sonarcloud.io" \
+      	-Dsonar.branch.name="master" \
+      	-Dsonar.token=$(SONAR_TOKEN) \
+      	-Dsonar.organization="dotnetapp7"
+    failOnStderr: true
